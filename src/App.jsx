@@ -375,7 +375,7 @@ export default function App() {
   const [messages, setMessages]       = useState([]);
   const [input, setInput]             = useState("");
   const [loading, setLoading]         = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(() => window.innerWidth > 768);
   const [showPaywall, setShowPaywall] = useState(false);
   const [isPro, setIsPro]             = useState(false);
   const [showSignIn, setShowSignIn]   = useState(false);
@@ -404,6 +404,7 @@ export default function App() {
   const freeLeft   = Math.max(0, FREE_LIMIT - usageCount);
   const isLocked   = !isPro && (lockoutInfo.locked || usageCount >= FREE_LIMIT);
   const hasChatted = messages.filter(m => m.role === "user").length > 0;
+  const isMobile   = window.innerWidth <= 768;
 
   const filteredChats = searchQuery.trim()
     ? savedChats.filter(c => c.title.toLowerCase().includes(searchQuery.toLowerCase()))
@@ -480,7 +481,7 @@ export default function App() {
     try {
       const res = await fetch("https://api.anthropic.com/v1/messages", {
         method:"POST",
-        headers:{ "Content-Type":"application/json", "x-api-key": import.meta.env.VITE_ANTHROPIC_KEY, "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" },
+        headers:{ "Content-Type":"application/json" },
         body: JSON.stringify({
           model:"claude-sonnet-4-20250514",
           max_tokens:1000,
@@ -502,8 +503,12 @@ export default function App() {
   const startNewChat = () => {
     setMessages([{role:"assistant",content:t.welcome,id:"welcome"}]);
     setActiveChatId(null); removePdf(); setInput(""); setSearchQuery("");
+    if (isMobile) setSidebarOpen(false);
   };
-  const loadChat = (chat) => { setMessages(chat.messages); setActiveChatId(chat.id); setLang(chat.lang||"es"); removePdf(); };
+  const loadChat = (chat) => {
+    setMessages(chat.messages); setActiveChatId(chat.id); setLang(chat.lang||"es"); removePdf();
+    if (isMobile) setSidebarOpen(false);
+  };
   const deleteChat = (id, e) => {
     e.stopPropagation();
     setSavedChats(prev=>{ const next=prev.filter(c=>c.id!==id); saveChats(next); return next; });
@@ -557,6 +562,10 @@ export default function App() {
         @keyframes modalIn{from{opacity:0;transform:translateY(12px)scale(.97)}to{opacity:1;transform:none}}
         @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
         .mi{animation:fadeUp .18s ease}
+        @media(max-width:768px){
+          .main-content{padding:16px 12px 12px!important}
+          .msg-max{max-width:92%!important}
+        }
       `}</style>
 
       {showPaywall && <Paywall t={t} onClose={()=>{ setShowPaywall(false); }} />}
