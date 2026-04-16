@@ -613,8 +613,8 @@ export default function App() {
           {/* Logo */}
           <div style={{ padding:"18px 18px 12px", borderBottom:"1px solid #f3f4f6" }}>
             <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:2 }}>
-              <div style={{ width:30, height:30, borderRadius:8, background:"#111827", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-                <ScaleIcon />
+              <div style={{ width:34, height:34, borderRadius:8, overflow:"hidden", flexShrink:0 }}>
+                <img src="/logo.png" alt="Lurix" style={{ width:"100%", height:"100%", objectFit:"contain" }} />
               </div>
               <span style={{ fontSize:17, fontWeight:800, color:"#111827", letterSpacing:"-.4px" }}>Lurix</span>
             </div>
@@ -697,14 +697,14 @@ export default function App() {
           </div>
 
           {/* Messages */}
-          <div style={{ flex:1, overflowY:"auto" }}>
-            <div style={{ width:"100%", padding:"32px 20px 20px" }}>
+          <div style={{ flex:1, overflowY:"auto", width:"100%" }}>
+            <div style={{ width:"100%", padding:"32px 40px 20px" }}>
 
               {/* Welcome bubble */}
               <div className="mi" style={{ marginBottom:28 }}>
                 <div style={{ display:"flex", gap:12, alignItems:"flex-start" }}>
-                  <div style={{ width:30, height:30, borderRadius:"50%", background:"#111827", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-                    <ScaleIcon />
+                  <div style={{ width:34, height:34, borderRadius:"50%", overflow:"hidden", flexShrink:0 }}>
+                    <img src="/logo.png" alt="Lurix" style={{ width:"100%", height:"100%", objectFit:"contain" }} />
                   </div>
                   <div style={{ flex:1 }}>
                     <div style={{ fontSize:12, fontWeight:600, color:"#111827", marginBottom:5 }}>Lurix</div>
@@ -735,8 +735,8 @@ export default function App() {
                           <div style={{ maxWidth:"78%", background:"#111827", color:"#f9f9f8", padding:"10px 16px", borderRadius:"18px 18px 4px 18px", fontSize:14, lineHeight:1.65 }}>{m.content}</div>
                         </div>
                       : <div style={{ display:"flex", gap:12, alignItems:"flex-start" }}>
-                          <div style={{ width:30, height:30, borderRadius:"50%", background:"#111827", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-                            <ScaleIcon />
+                          <div style={{ width:34, height:34, borderRadius:"50%", overflow:"hidden", flexShrink:0 }}>
+                            <img src="/logo.png" alt="Lurix" style={{ width:"100%", height:"100%", objectFit:"contain" }} />
                           </div>
                           <div style={{ flex:1 }}>
                             <div style={{ fontSize:12, fontWeight:600, color:"#111827", marginBottom:5 }}>Lurix</div>
@@ -784,8 +784,8 @@ export default function App() {
               {loading && (
                 <div className="mi" style={{ marginBottom:22 }}>
                   <div style={{ display:"flex", gap:12, alignItems:"flex-start" }}>
-                    <div style={{ width:30, height:30, borderRadius:"50%", background:"#111827", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-                      <ScaleIcon />
+                    <div style={{ width:34, height:34, borderRadius:"50%", overflow:"hidden", flexShrink:0 }}>
+                      <img src="/logo.png" alt="Lurix" style={{ width:"100%", height:"100%", objectFit:"contain" }} />
                     </div>
                     <div style={{ display:"flex", alignItems:"center", gap:6, paddingTop:7 }}>
                       {[0,1,2].map(d => <div key={d} style={{ width:6, height:6, borderRadius:"50%", background:"#d1d5db", animation:`pulse 1.2s ease ${d * .2}s infinite` }}/>)}
@@ -799,7 +799,7 @@ export default function App() {
           </div>
 
           {/* INPUT AREA */}
-          <div style={{ background:"#fff", borderTop:"1px solid #e5e7eb", padding:"12px 20px 16px", flexShrink:0 }}>
+          <div style={{ background:"#fff", borderTop:"1px solid #e5e7eb", padding:"12px 40px 16px", flexShrink:0 }}>
             <div style={{ width:"100%" }}>
 
               {/* PDF drop zone */}
