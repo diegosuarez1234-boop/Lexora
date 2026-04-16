@@ -354,6 +354,8 @@ export default function App() {
   const juris    = t.jurisdictions[jurIdx];
   const freeLeft = Math.max(0, FREE_LIMIT - usageCount);
   const isLocked = !isPro && usageCount >= FREE_LIMIT;
+  const needsSignIn = isLocked && !isSignedIn;
+  const needsPlans  = isLocked && isSignedIn && !isPro;
   const hasChatted = messages.filter(m => m.role === "user").length > 0;
 
   useEffect(() => {
@@ -382,7 +384,6 @@ export default function App() {
     const next = usageCount + 1;
     setUsageCount(next);
     try { localStorage.setItem(STORAGE_KEY, String(next)); } catch {}
-    if (next >= FREE_LIMIT && !isPro) setTimeout(() => setShowPaywall(true), 800);
   };
 
   const fmt = (text) => text
@@ -651,8 +652,8 @@ export default function App() {
             )}
           </div>
 
-          {/* Free usage bar */}
-          {!isPro && (
+          {/* Free usage bar - only show when not locked */}
+          {!isPro && !isLocked && (
             <div style={{ padding:"10px 14px 8px", borderTop:"1px solid #f3f4f6" }}>
               <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:5 }}>
                 <span style={{ fontSize:11, color:"#6b7280" }}>{t.freeLeft(freeLeft)}</span>
@@ -689,7 +690,7 @@ export default function App() {
             <div style={{ flex:1 }} />
             {isPro
               ? <div style={{ fontSize:11, color:"#16a34a", background:"#f0fdf4", border:"1px solid #bbf7d0", borderRadius:20, padding:"3px 10px" }}>Pro activo</div>
-              : isLocked
+              : needsPlans
                 ? <button onClick={() => setShowPaywall(true)} style={{ fontSize:11, color:"#dc2626", background:"#fef2f2", border:"1px solid #fecaca", borderRadius:20, padding:"3px 10px", cursor:"pointer", fontFamily:"inherit" }}>{t.freeUsed}</button>
                 : null
             }
@@ -697,7 +698,7 @@ export default function App() {
 
           {/* Messages */}
           <div style={{ flex:1, overflowY:"auto" }}>
-            <div style={{ maxWidth:680, margin:"0 auto", padding:"32px 20px 20px" }}>
+            <div style={{ maxWidth:"100%", margin:"0 auto", padding:"32px 20px 20px" }}>
 
               {/* Welcome bubble */}
               <div className="mi" style={{ marginBottom:28 }}>
@@ -748,21 +749,32 @@ export default function App() {
               })}
 
               {/* Locked state */}
-              {isLocked && hasChatted && !isSignedIn && (
-                <div className="mi" style={{ textAlign:"center", padding:28, background:"#fff", borderRadius:16, border:"1px solid #e5e7eb", marginBottom:20 }}>
-                  <div style={{ fontSize:15, fontWeight:700, color:"#111827", marginBottom:4 }}>{t.paywallBadge}</div>
-                  <div style={{ fontSize:13, color:"#6b7280", marginBottom:20 }}>Crea tu cuenta gratis para continuar.</div>
+              {needsSignIn && hasChatted && (
+                <div className="mi" style={{ textAlign:"center", padding:"32px 24px", background:"#fff", borderRadius:16, border:"1px solid #e5e7eb", marginBottom:20 }}>
+                  <div style={{ width:48, height:48, background:"#f3f4f6", borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 16px" }}>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 12a5 5 0 100-10 5 5 0 000 10zM20 21a8 8 0 10-16 0" stroke="#6b7280" strokeWidth="1.5" strokeLinecap="round"/></svg>
+                  </div>
+                  <div style={{ fontSize:17, fontWeight:700, color:"#111827", marginBottom:6 }}>
+                    {lang === "es" ? "Crea tu cuenta gratis" : "Create your free account"}
+                  </div>
+                  <div style={{ fontSize:13, color:"#6b7280", marginBottom:24, lineHeight:1.6 }}>
+                    {lang === "es" ? "Has usado tus 5 consultas gratis. Crea una cuenta para continuar." : "You've used your 5 free consultations. Sign up to continue."}
+                  </div>
                   <div style={{ display:"flex", justifyContent:"center" }}>
-                    <SignIn routing="hash" />
+                    <SignIn routing="hash" appearance={{ elements: { rootBox: { width: "100%", maxWidth: 400 } } }} />
                   </div>
                 </div>
               )}
 
-              {isLocked && hasChatted && isSignedIn && (
-                <div className="mi" style={{ textAlign:"center", padding:28, background:"#fffbeb", borderRadius:16, border:"1px solid #fde68a", marginBottom:20 }}>
-                  <div style={{ fontSize:15, fontWeight:700, color:"#92400e", marginBottom:4 }}>{t.paywallBadge}</div>
-                  <div style={{ fontSize:13, color:"#6b7280", marginBottom:16 }}>{t.paywallSub}</div>
-                  <button onClick={() => setShowPaywall(true)} style={{ padding:"11px 28px", borderRadius:10, background:"#111827", color:"white", border:"none", fontSize:14, fontWeight:700, cursor:"pointer", fontFamily:"inherit" }}>
+              {needsPlans && hasChatted && (
+                <div className="mi" style={{ textAlign:"center", padding:"32px 24px", background:"#fff", borderRadius:16, border:"1px solid #e5e7eb", marginBottom:20 }}>
+                  <div style={{ fontSize:17, fontWeight:700, color:"#111827", marginBottom:6 }}>
+                    {lang === "es" ? `Bienvenido${user?.firstName ? `, ${user.firstName}` : ""}` : `Welcome${user?.firstName ? `, ${user.firstName}` : ""}`}
+                  </div>
+                  <div style={{ fontSize:13, color:"#6b7280", marginBottom:20 }}>
+                    {lang === "es" ? "Elige un plan para seguir consultando sin límites." : "Choose a plan to keep consulting without limits."}
+                  </div>
+                  <button onClick={() => setShowPaywall(true)} style={{ padding:"12px 32px", borderRadius:10, background:"#111827", color:"#fff", border:"none", fontSize:14, fontWeight:700, cursor:"pointer", fontFamily:"inherit" }}>
                     {lang === "es" ? "Ver planes" : "View plans"}
                   </button>
                 </div>
@@ -788,7 +800,7 @@ export default function App() {
 
           {/* INPUT AREA */}
           <div style={{ background:"#fff", borderTop:"1px solid #e5e7eb", padding:"12px 20px 16px", flexShrink:0 }}>
-            <div style={{ maxWidth:680, margin:"0 auto" }}>
+            <div style={{ maxWidth:"100%", margin:"0 auto" }}>
 
               {/* PDF drop zone */}
               {showUploadZone && (
