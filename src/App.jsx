@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { useUser, SignIn, SignedIn, SignedOut } from "@clerk/react";
+import { useUser, SignIn } from "@clerk/react";
 
 const STRIPE_BASIC = "https://buy.stripe.com/TU_LINK_BASICO";
 const STRIPE_PRO   = "https://buy.stripe.com/TU_LINK_PRO";
