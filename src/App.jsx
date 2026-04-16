@@ -698,7 +698,7 @@ export default function App() {
 
           {/* Messages */}
           <div style={{ flex:1, overflowY:"auto" }}>
-            <div style={{ maxWidth:"100%", margin:"0 auto", padding:"32px 20px 20px" }}>
+            <div style={{ width:"100%", padding:"32px 20px 20px" }}>
 
               {/* Welcome bubble */}
               <div className="mi" style={{ marginBottom:28 }}>
@@ -800,7 +800,7 @@ export default function App() {
 
           {/* INPUT AREA */}
           <div style={{ background:"#fff", borderTop:"1px solid #e5e7eb", padding:"12px 20px 16px", flexShrink:0 }}>
-            <div style={{ maxWidth:"100%", margin:"0 auto" }}>
+            <div style={{ width:"100%" }}>
 
               {/* PDF drop zone */}
               {showUploadZone && (
