@@ -547,6 +547,55 @@ export default function App() {
     </svg>
   );
 
+  const renderInput = () => (
+    <div>
+      {showUploadZone && (
+        <div
+          onDragOver={e => { e.preventDefault(); e.currentTarget.style.borderColor="#374151"; e.currentTarget.style.background="#f3f4f6"; }}
+          onDragLeave={e => { e.currentTarget.style.borderColor="#d1d5db"; e.currentTarget.style.background="#fafafa"; }}
+          onDrop={e => { e.preventDefault(); e.currentTarget.style.borderColor="#d1d5db"; e.currentTarget.style.background="#fafafa"; processPdf(e.dataTransfer.files[0]); }}
+          onClick={() => fileRef.current?.click()}
+          style={{ border:"2px dashed #d1d5db", borderRadius:12, padding:"20px 16px", textAlign:"center", cursor:"pointer", background:"#fafafa", marginBottom:10, transition:"all .2s" }}
+        >
+          <div style={{ fontSize:13, color:"#374151" }}>
+            {t.uploadDrag} <span style={{ fontWeight:600, textDecoration:"underline" }}>{t.uploadClick}</span>
+          </div>
+          <div style={{ fontSize:11, color:"#9ca3af", marginTop:5 }}>{t.uploadHint}</div>
+          <input ref={fileRef} type="file" accept="application/pdf" onChange={e => processPdf(e.target.files[0])} style={{ display:"none" }} />
+        </div>
+      )}
+      {pdfStatus === "reading" && (
+        <div style={{ display:"flex", alignItems:"center", gap:8, padding:"9px 14px", background:"#f9f9f8", border:"1px solid #e5e7eb", borderRadius:10, marginBottom:10 }}>
+          <div style={{ width:13, height:13, border:"2px solid #e5e7eb", borderTop:"2px solid #374151", borderRadius:"50%", animation:"spin .8s linear infinite" }} />
+          <span style={{ fontSize:13, color:"#6b7280" }}>{t.uploadReading}</span>
+        </div>
+      )}
+      {pdfStatus === "ready" && pdfFile && (
+        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"8px 14px", background:"#f0fdf4", border:"1px solid #bbf7d0", borderRadius:10, marginBottom:10 }}>
+          <span style={{ fontSize:13, color:"#065f46", fontWeight:500 }}>{t.uploadReady(pdfFile.name, pdfFile.pages)}</span>
+          <button onClick={removePdf} style={{ fontSize:11, color:"#9ca3af", background:"transparent", border:"none", cursor:"pointer", fontFamily:"inherit" }}>{t.removeFile} ✕</button>
+        </div>
+      )}
+      {pdfStatus === "error" && (
+        <div style={{ padding:"8px 14px", background:"#fef2f2", border:"1px solid #fecaca", borderRadius:10, marginBottom:10, fontSize:13, color:"#dc2626" }}>{t.uploadError}</div>
+      )}
+      <div
+        style={{ display:"flex", gap:8, alignItems:"flex-end", background:"#fff", border:`1.5px solid ${isLocked ? "#fecaca" : "#e5e7eb"}`, borderRadius:16, padding:"10px 10px 10px 14px", transition:"border-color .2s", boxShadow:"0 2px 8px rgba(0,0,0,0.06)" }}
+        onFocusCapture={e => { if (!isLocked) e.currentTarget.style.borderColor="#374151"; }}
+        onBlurCapture={e => e.currentTarget.style.borderColor=isLocked ? "#fecaca" : "#e5e7eb"}
+      >
+        <button onClick={() => setShowUploadZone(v => !v)} title={t.uploadBtn} style={{ width:32, height:32, borderRadius:8, background:showUploadZone ? "#111827" : "transparent", border:"1px solid #e5e7eb", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, transition:"all .15s" }} onMouseOver={e => { if (!showUploadZone) e.currentTarget.style.background="#f3f4f6"; }} onMouseOut={e => { if (!showUploadZone) e.currentTarget.style.background="transparent"; }}>
+          <PaperclipIcon />
+        </button>
+        <textarea ref={inputRef} value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); isLocked ? setShowPaywall(true) : sendMessage(); }}} placeholder={isLocked ? t.lockedInput : t.placeholder} rows={1} disabled={isLocked || loading} style={{ flex:1, background:"transparent", border:"none", color:isLocked ? "#9ca3af" : "#111827", fontSize:14, resize:"none", outline:"none", fontFamily:"inherit", lineHeight:1.5, maxHeight:120, paddingTop:2, cursor:isLocked ? "not-allowed" : "text" }} onInput={e => { e.target.style.height="auto"; e.target.style.height=Math.min(e.target.scrollHeight, 120) + "px"; }} />
+        <button onClick={() => isLocked ? setShowPaywall(true) : sendMessage()} disabled={!isLocked && (loading || !input.trim())} style={{ width:34, height:34, borderRadius:9, background:isLocked ? "#dc2626" : (!input.trim() || loading ? "#f3f4f6" : "#111827"), border:"none", cursor:(!isLocked && (!input.trim() || loading)) ? "not-allowed" : "pointer", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, transition:"background .15s" }}>
+          <SendIcon locked={isLocked} />
+        </button>
+      </div>
+      <div style={{ textAlign:"center", marginTop:7, fontSize:11, color:"#d1d5db" }}>{t.disclaimer}</div>
+    </div>
+  );
+
   return (
     <>
       <style>{`
@@ -680,14 +729,15 @@ export default function App() {
         </div>
 
         {/* MAIN */}
-        <div style={{ flex:1, display:"flex", flexDirection:"column", minWidth:0 }}>
+        <div style={{ flex:1, display:"flex", flexDirection:"column", minWidth:0, background:"#f9f9f8" }}>
 
           {/* Top bar */}
           <div style={{ height:50, borderBottom:"1px solid #e5e7eb", background:"#fff", display:"flex", alignItems:"center", padding:"0 18px", gap:10, flexShrink:0 }}>
             <button onClick={() => setSidebarOpen(o => !o)} style={{ background:"transparent", border:"none", cursor:"pointer", padding:"4px 6px", borderRadius:6, lineHeight:1 }}>
               <MenuIcon />
             </button>
-            <div style={{ flex:1 }} />
+            {!hasChatted && <div style={{ flex:1, textAlign:"center", fontSize:14, fontWeight:600, color:"#111827" }}>Lurix</div>}
+            <div style={{ flex: hasChatted ? 1 : 0 }} />
             {isPro
               ? <div style={{ fontSize:11, color:"#16a34a", background:"#f0fdf4", border:"1px solid #bbf7d0", borderRadius:20, padding:"3px 10px" }}>Pro activo</div>
               : needsPlans
@@ -696,186 +746,115 @@ export default function App() {
             }
           </div>
 
-          {/* Messages */}
-          <div style={{ flex:1, overflowY:"auto", width:"100%" }}>
-            <div style={{ width:"100%", padding:"32px 40px 20px" }}>
+          {/* LANDING STATE — centered like ChatGPT */}
+          {!hasChatted && (
+            <div style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"0 20px" }}>
+              <div style={{ width:64, height:64, borderRadius:16, overflow:"hidden", marginBottom:20 }}>
+                <img src="/logo.png" alt="Lurix" style={{ width:"100%", height:"100%", objectFit:"contain" }} />
+              </div>
+              <h1 style={{ fontSize:28, fontWeight:700, color:"#111827", marginBottom:8, letterSpacing:"-.5px" }}>
+                {lang === "es" ? "¿En qué puedo ayudarte?" : "How can I help you?"}
+              </h1>
+              <p style={{ fontSize:14, color:"#6b7280", marginBottom:32, textAlign:"center", maxWidth:400, lineHeight:1.6 }}>
+                {lang === "es" ? "Tu asistente legal con IA para Puerto Rico." : "Your AI legal assistant for Puerto Rico."}
+              </p>
+              <div style={{ width:"100%", maxWidth:640, display:"flex", flexDirection:"column", gap:8, marginBottom:24 }}>
+                {t.suggestions.map((s, i) => (
+                  <button key={i} onClick={() => sendMessage(s)} className="sq" style={{ padding:"12px 16px", borderRadius:12, border:"1px solid #e5e7eb", background:"#fff", color:"#374151", fontSize:13, cursor:"pointer", textAlign:"left", fontFamily:"inherit", transition:"all .15s" }}>{s}</button>
+                ))}
+              </div>
+              {/* Input centered */}
+              <div style={{ width:"100%", maxWidth:640 }}>
+                {renderInput()}
+              </div>
+            </div>
+          )}
 
-              {/* Welcome bubble */}
-              <div className="mi" style={{ marginBottom:28 }}>
-                <div style={{ display:"flex", gap:12, alignItems:"flex-start" }}>
-                  <div style={{ width:34, height:34, borderRadius:"50%", overflow:"hidden", flexShrink:0 }}>
-                    <img src="/logo.png" alt="Lurix" style={{ width:"100%", height:"100%", objectFit:"contain" }} />
-                  </div>
-                  <div style={{ flex:1 }}>
-                    <div style={{ fontSize:12, fontWeight:600, color:"#111827", marginBottom:5 }}>Lurix</div>
-                    <div style={{ fontSize:14, color:"#374151", lineHeight:1.8 }} dangerouslySetInnerHTML={{ __html:fmt(t.welcome) }} />
-                  </div>
+          {/* CHAT STATE — messages + input at bottom */}
+          {hasChatted && (
+            <>
+              <div style={{ flex:1, overflowY:"auto" }}>
+                <div style={{ maxWidth:760, margin:"0 auto", padding:"32px 24px 20px" }}>
+
+                  {/* Chat messages */}
+                  {messages.filter(m => m.id !== "welcome").map((m, i) => {
+                    if (m.silent) return null;
+                    return (
+                      <div key={m.id ?? i} className="mi" style={{ marginBottom:24 }}>
+                        {m.role === "user"
+                          ? <div style={{ display:"flex", justifyContent:"flex-end" }}>
+                              <div style={{ maxWidth:"78%", background:"#111827", color:"#f9f9f8", padding:"10px 16px", borderRadius:"18px 18px 4px 18px", fontSize:14, lineHeight:1.65 }}>{m.content}</div>
+                            </div>
+                          : <div style={{ display:"flex", gap:12, alignItems:"flex-start" }}>
+                              <div style={{ width:32, height:32, borderRadius:"50%", overflow:"hidden", flexShrink:0 }}>
+                                <img src="/logo.png" alt="Lurix" style={{ width:"100%", height:"100%", objectFit:"contain" }} />
+                              </div>
+                              <div style={{ flex:1 }}>
+                                <div style={{ fontSize:12, fontWeight:600, color:"#111827", marginBottom:5 }}>Lurix</div>
+                                <div style={{ fontSize:14, color:"#374151", lineHeight:1.8 }} dangerouslySetInnerHTML={{ __html:fmt(m.content) }} />
+                              </div>
+                            </div>
+                        }
+                      </div>
+                    );
+                  })}
+
+                  {needsSignIn && (
+                    <div className="mi" style={{ textAlign:"center", padding:"32px 24px", background:"#fff", borderRadius:16, border:"1px solid #e5e7eb", marginBottom:20 }}>
+                      <div style={{ width:48, height:48, background:"#f3f4f6", borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 16px" }}>
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 12a5 5 0 100-10 5 5 0 000 10zM20 21a8 8 0 10-16 0" stroke="#6b7280" strokeWidth="1.5" strokeLinecap="round"/></svg>
+                      </div>
+                      <div style={{ fontSize:17, fontWeight:700, color:"#111827", marginBottom:6 }}>
+                        {lang === "es" ? "Crea tu cuenta gratis" : "Create your free account"}
+                      </div>
+                      <div style={{ fontSize:13, color:"#6b7280", marginBottom:24, lineHeight:1.6 }}>
+                        {lang === "es" ? "Has usado tus 5 consultas gratis. Crea una cuenta para continuar." : "You've used your 5 free consultations. Sign up to continue."}
+                      </div>
+                      <div style={{ display:"flex", justifyContent:"center" }}>
+                        <SignIn routing="hash" appearance={{ elements: { rootBox: { width:"100%", maxWidth:400 } } }} />
+                      </div>
+                    </div>
+                  )}
+
+                  {needsPlans && (
+                    <div className="mi" style={{ textAlign:"center", padding:"32px 24px", background:"#fff", borderRadius:16, border:"1px solid #e5e7eb", marginBottom:20 }}>
+                      <div style={{ fontSize:17, fontWeight:700, color:"#111827", marginBottom:6 }}>
+                        {lang === "es" ? `Bienvenido${user?.firstName ? `, ${user.firstName}` : ""}` : `Welcome${user?.firstName ? `, ${user.firstName}` : ""}`}
+                      </div>
+                      <div style={{ fontSize:13, color:"#6b7280", marginBottom:20 }}>
+                        {lang === "es" ? "Elige un plan para seguir consultando sin límites." : "Choose a plan to keep consulting without limits."}
+                      </div>
+                      <button onClick={() => setShowPaywall(true)} style={{ padding:"12px 32px", borderRadius:10, background:"#111827", color:"#fff", border:"none", fontSize:14, fontWeight:700, cursor:"pointer", fontFamily:"inherit" }}>
+                        {lang === "es" ? "Ver planes" : "View plans"}
+                      </button>
+                    </div>
+                  )}
+
+                  {loading && (
+                    <div className="mi" style={{ marginBottom:22 }}>
+                      <div style={{ display:"flex", gap:12, alignItems:"flex-start" }}>
+                        <div style={{ width:32, height:32, borderRadius:"50%", overflow:"hidden", flexShrink:0 }}>
+                          <img src="/logo.png" alt="Lurix" style={{ width:"100%", height:"100%", objectFit:"contain" }} />
+                        </div>
+                        <div style={{ display:"flex", alignItems:"center", gap:6, paddingTop:7 }}>
+                          {[0,1,2].map(d => <div key={d} style={{ width:6, height:6, borderRadius:"50%", background:"#d1d5db", animation:`pulse 1.2s ease ${d * .2}s infinite` }}/>)}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  <div ref={bottomRef} />
                 </div>
               </div>
 
-              {/* Suggestions */}
-              {!hasChatted && (
-                <div style={{ marginBottom:28 }}>
-                  <div style={{ fontSize:11, color:"#9ca3af", letterSpacing:.5, textTransform:"uppercase", marginBottom:10 }}>{t.tryAsking}</div>
-                  <div style={{ display:"flex", flexDirection:"column", gap:6 }}>
-                    {t.suggestions.map((s, i) => (
-                      <button key={i} onClick={() => sendMessage(s)} className="sq" style={{ padding:"10px 14px", borderRadius:10, border:"1px solid #e5e7eb", background:"#fff", color:"#374151", fontSize:13, cursor:"pointer", textAlign:"left", fontFamily:"inherit", transition:"all .15s" }}>{s}</button>
-                    ))}
-                  </div>
+              {/* Input at bottom when chatting */}
+              <div style={{ background:"#f9f9f8", borderTop:"1px solid #e5e7eb", padding:"12px 24px 16px", flexShrink:0 }}>
+                <div style={{ maxWidth:760, margin:"0 auto" }}>
+                  {renderInput()}
                 </div>
-              )}
-
-              {/* Chat messages */}
-              {messages.filter(m => m.id !== "welcome").map((m, i) => {
-                if (m.silent) return null;
-                return (
-                  <div key={m.id ?? i} className="mi" style={{ marginBottom:22 }}>
-                    {m.role === "user"
-                      ? <div style={{ display:"flex", justifyContent:"flex-end" }}>
-                          <div style={{ maxWidth:"78%", background:"#111827", color:"#f9f9f8", padding:"10px 16px", borderRadius:"18px 18px 4px 18px", fontSize:14, lineHeight:1.65 }}>{m.content}</div>
-                        </div>
-                      : <div style={{ display:"flex", gap:12, alignItems:"flex-start" }}>
-                          <div style={{ width:34, height:34, borderRadius:"50%", overflow:"hidden", flexShrink:0 }}>
-                            <img src="/logo.png" alt="Lurix" style={{ width:"100%", height:"100%", objectFit:"contain" }} />
-                          </div>
-                          <div style={{ flex:1 }}>
-                            <div style={{ fontSize:12, fontWeight:600, color:"#111827", marginBottom:5 }}>Lurix</div>
-                            <div style={{ fontSize:14, color:"#374151", lineHeight:1.8 }} dangerouslySetInnerHTML={{ __html:fmt(m.content) }} />
-                          </div>
-                        </div>
-                    }
-                  </div>
-                );
-              })}
-
-              {/* Locked state */}
-              {needsSignIn && hasChatted && (
-                <div className="mi" style={{ textAlign:"center", padding:"32px 24px", background:"#fff", borderRadius:16, border:"1px solid #e5e7eb", marginBottom:20 }}>
-                  <div style={{ width:48, height:48, background:"#f3f4f6", borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 16px" }}>
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 12a5 5 0 100-10 5 5 0 000 10zM20 21a8 8 0 10-16 0" stroke="#6b7280" strokeWidth="1.5" strokeLinecap="round"/></svg>
-                  </div>
-                  <div style={{ fontSize:17, fontWeight:700, color:"#111827", marginBottom:6 }}>
-                    {lang === "es" ? "Crea tu cuenta gratis" : "Create your free account"}
-                  </div>
-                  <div style={{ fontSize:13, color:"#6b7280", marginBottom:24, lineHeight:1.6 }}>
-                    {lang === "es" ? "Has usado tus 5 consultas gratis. Crea una cuenta para continuar." : "You've used your 5 free consultations. Sign up to continue."}
-                  </div>
-                  <div style={{ display:"flex", justifyContent:"center" }}>
-                    <SignIn routing="hash" appearance={{ elements: { rootBox: { width: "100%", maxWidth: 400 } } }} />
-                  </div>
-                </div>
-              )}
-
-              {needsPlans && hasChatted && (
-                <div className="mi" style={{ textAlign:"center", padding:"32px 24px", background:"#fff", borderRadius:16, border:"1px solid #e5e7eb", marginBottom:20 }}>
-                  <div style={{ fontSize:17, fontWeight:700, color:"#111827", marginBottom:6 }}>
-                    {lang === "es" ? `Bienvenido${user?.firstName ? `, ${user.firstName}` : ""}` : `Welcome${user?.firstName ? `, ${user.firstName}` : ""}`}
-                  </div>
-                  <div style={{ fontSize:13, color:"#6b7280", marginBottom:20 }}>
-                    {lang === "es" ? "Elige un plan para seguir consultando sin límites." : "Choose a plan to keep consulting without limits."}
-                  </div>
-                  <button onClick={() => setShowPaywall(true)} style={{ padding:"12px 32px", borderRadius:10, background:"#111827", color:"#fff", border:"none", fontSize:14, fontWeight:700, cursor:"pointer", fontFamily:"inherit" }}>
-                    {lang === "es" ? "Ver planes" : "View plans"}
-                  </button>
-                </div>
-              )}
-
-              {/* Typing indicator */}
-              {loading && (
-                <div className="mi" style={{ marginBottom:22 }}>
-                  <div style={{ display:"flex", gap:12, alignItems:"flex-start" }}>
-                    <div style={{ width:34, height:34, borderRadius:"50%", overflow:"hidden", flexShrink:0 }}>
-                      <img src="/logo.png" alt="Lurix" style={{ width:"100%", height:"100%", objectFit:"contain" }} />
-                    </div>
-                    <div style={{ display:"flex", alignItems:"center", gap:6, paddingTop:7 }}>
-                      {[0,1,2].map(d => <div key={d} style={{ width:6, height:6, borderRadius:"50%", background:"#d1d5db", animation:`pulse 1.2s ease ${d * .2}s infinite` }}/>)}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              <div ref={bottomRef} />
-            </div>
-          </div>
-
-          {/* INPUT AREA */}
-          <div style={{ background:"#fff", borderTop:"1px solid #e5e7eb", padding:"12px 40px 16px", flexShrink:0 }}>
-            <div style={{ width:"100%" }}>
-
-              {/* PDF drop zone */}
-              {showUploadZone && (
-                <div
-                  onDragOver={e => { e.preventDefault(); e.currentTarget.style.borderColor="#374151"; e.currentTarget.style.background="#f3f4f6"; }}
-                  onDragLeave={e => { e.currentTarget.style.borderColor="#d1d5db"; e.currentTarget.style.background="#fafafa"; }}
-                  onDrop={e => { e.preventDefault(); e.currentTarget.style.borderColor="#d1d5db"; e.currentTarget.style.background="#fafafa"; processPdf(e.dataTransfer.files[0]); }}
-                  onClick={() => fileRef.current?.click()}
-                  style={{ border:"2px dashed #d1d5db", borderRadius:12, padding:"20px 16px", textAlign:"center", cursor:"pointer", background:"#fafafa", marginBottom:10, transition:"all .2s" }}
-                >
-                  <div style={{ fontSize:13, color:"#374151" }}>
-                    {t.uploadDrag} <span style={{ fontWeight:600, textDecoration:"underline" }}>{t.uploadClick}</span>
-                  </div>
-                  <div style={{ fontSize:11, color:"#9ca3af", marginTop:5 }}>{t.uploadHint}</div>
-                  <input ref={fileRef} type="file" accept="application/pdf" onChange={e => processPdf(e.target.files[0])} style={{ display:"none" }} />
-                </div>
-              )}
-
-              {/* PDF states */}
-              {pdfStatus === "reading" && (
-                <div style={{ display:"flex", alignItems:"center", gap:8, padding:"9px 14px", background:"#f9f9f8", border:"1px solid #e5e7eb", borderRadius:10, marginBottom:10 }}>
-                  <div style={{ width:13, height:13, border:"2px solid #e5e7eb", borderTop:"2px solid #374151", borderRadius:"50%", animation:"spin .8s linear infinite" }} />
-                  <span style={{ fontSize:13, color:"#6b7280" }}>{t.uploadReading}</span>
-                </div>
-              )}
-              {pdfStatus === "ready" && pdfFile && (
-                <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"8px 14px", background:"#f0fdf4", border:"1px solid #bbf7d0", borderRadius:10, marginBottom:10 }}>
-                  <span style={{ fontSize:13, color:"#065f46", fontWeight:500 }}>{t.uploadReady(pdfFile.name, pdfFile.pages)}</span>
-                  <button onClick={removePdf} style={{ fontSize:11, color:"#9ca3af", background:"transparent", border:"none", cursor:"pointer", fontFamily:"inherit" }}>{t.removeFile} ✕</button>
-                </div>
-              )}
-              {pdfStatus === "error" && (
-                <div style={{ padding:"8px 14px", background:"#fef2f2", border:"1px solid #fecaca", borderRadius:10, marginBottom:10, fontSize:13, color:"#dc2626" }}>{t.uploadError}</div>
-              )}
-
-              {/* Main input row */}
-              <div
-                style={{ display:"flex", gap:8, alignItems:"flex-end", background:"#f9f9f8", border:`1px solid ${isLocked ? "#fecaca" : "#e5e7eb"}`, borderRadius:14, padding:"10px 10px 10px 14px", transition:"border-color .2s" }}
-                onFocusCapture={e => { if (!isLocked) e.currentTarget.style.borderColor="#374151"; }}
-                onBlurCapture={e => e.currentTarget.style.borderColor=isLocked ? "#fecaca" : "#e5e7eb"}
-              >
-                <button
-                  onClick={() => setShowUploadZone(v => !v)}
-                  title={t.uploadBtn}
-                  style={{ width:32, height:32, borderRadius:8, background:showUploadZone ? "#111827" : "transparent", border:"1px solid #e5e7eb", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, transition:"all .15s" }}
-                  onMouseOver={e => { if (!showUploadZone) e.currentTarget.style.background="#f3f4f6"; }}
-                  onMouseOut={e => { if (!showUploadZone) e.currentTarget.style.background="transparent"; }}
-                >
-                  <PaperclipIcon />
-                </button>
-
-                <textarea
-                  ref={inputRef}
-                  value={input}
-                  onChange={e => setInput(e.target.value)}
-                  onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); isLocked ? setShowPaywall(true) : sendMessage(); }}}
-                  placeholder={isLocked ? t.lockedInput : t.placeholder}
-                  rows={1}
-                  disabled={isLocked || loading}
-                  style={{ flex:1, background:"transparent", border:"none", color:isLocked ? "#9ca3af" : "#111827", fontSize:14, resize:"none", outline:"none", fontFamily:"inherit", lineHeight:1.5, maxHeight:120, paddingTop:2, cursor:isLocked ? "not-allowed" : "text" }}
-                  onInput={e => { e.target.style.height="auto"; e.target.style.height=Math.min(e.target.scrollHeight, 120) + "px"; }}
-                />
-
-                <button
-                  onClick={() => isLocked ? setShowPaywall(true) : sendMessage()}
-                  disabled={!isLocked && (loading || !input.trim())}
-                  style={{ width:34, height:34, borderRadius:9, background:isLocked ? "#dc2626" : (!input.trim() || loading ? "#f3f4f6" : "#111827"), border:"none", cursor:(!isLocked && (!input.trim() || loading)) ? "not-allowed" : "pointer", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, transition:"background .15s" }}
-                >
-                  <SendIcon locked={isLocked} />
-                </button>
               </div>
-
-              <div style={{ textAlign:"center", marginTop:7, fontSize:11, color:"#d1d5db" }}>{t.disclaimer}</div>
-            </div>
-          </div>
+            </>
+          )}
         </div>
       </div>
     </>
