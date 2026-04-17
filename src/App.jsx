@@ -63,7 +63,7 @@ const T = {
     planBasicPrice:"$15",
     planBasicOld:  "$19",
     planBasicPer:  "/mes",
-    planBasicFeats:["Consultas ilimitadas","Análisis de contratos PDF","Historial guardado","8 jurisdicciones","Soporte por email"],
+    planBasicFeats:["Consultas ilimitadas","Análisis de contratos PDF","Historial guardado","Soporte por email"],
     planBasicCta:  "Comenzar por $15/mes",
     planProName:   "Profesional",
     planProBadge:  "Para negocios",
@@ -125,7 +125,7 @@ const T = {
     planBasicPrice:"$15",
     planBasicOld:  "$19",
     planBasicPer:  "/mo",
-    planBasicFeats:["Unlimited consultations","PDF contract analysis","Saved chat history","8 jurisdictions","Email support"],
+    planBasicFeats:["Unlimited consultations","PDF contract analysis","Saved chat history","Email support"],
     planBasicCta:  "Start for $15/mo",
     planProName:   "Professional",
     planProBadge:  "For businesses",
@@ -770,7 +770,7 @@ export default function App() {
                     <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="#6b7280" strokeWidth="1.3"/><path d="M7 1.5C7 1.5 5 4 5 7s2 5.5 2 5.5M7 1.5C7 1.5 9 4 9 7s-2 5.5-2 5.5M1.5 7h11" stroke="#6b7280" strokeWidth="1.3"/></svg>
                     {lang === "es" ? "Switch to English" : "Cambiar a Español"}
                   </button>
-                  <a href="mailto:hola@trylurix.com" style={{ width:"100%", display:"flex", alignItems:"center", gap:8, padding:"8px 10px", borderRadius:8, border:"none", background:"transparent", cursor:"pointer", fontFamily:"inherit", fontSize:13, color:"#374151", textDecoration:"none" }}
+                  <a href="mailto:hello@trylurix.com" style={{ width:"100%", display:"flex", alignItems:"center", gap:8, padding:"8px 10px", borderRadius:8, border:"none", background:"transparent", cursor:"pointer", fontFamily:"inherit", fontSize:13, color:"#374151", textDecoration:"none" }}
                     onMouseOver={e => e.currentTarget.style.background="#f3f4f6"}
                     onMouseOut={e => e.currentTarget.style.background="transparent"}
                   >
@@ -778,10 +778,9 @@ export default function App() {
                     Support
                   </a>
                   <div style={{ borderTop:"1px solid #f3f4f6", marginTop:4, paddingTop:4 }}>
-                    <button onClick={() => { window.location.href = "/sign-out"; }} style={{ width:"100%", display:"flex", alignItems:"center", gap:8, padding:"8px 10px", borderRadius:8, border:"none", background:"transparent", cursor:"pointer", fontFamily:"inherit", fontSize:13, color:"#dc2626", textAlign:"left" }}
+                    <button onClick={() => { window.Clerk?.signOut().then(() => window.location.reload()); setShowUserMenu(false); }} style={{ width:"100%", display:"flex", alignItems:"center", gap:8, padding:"8px 10px", borderRadius:8, border:"none", background:"transparent", cursor:"pointer", fontFamily:"inherit", fontSize:13, color:"#dc2626", textAlign:"left" }}
                       onMouseOver={e => e.currentTarget.style.background="#fef2f2"}
                       onMouseOut={e => e.currentTarget.style.background="transparent"}
-                      onClick={() => { window.Clerk?.signOut().then(() => window.location.reload()); setShowUserMenu(false); }}
                     >
                       <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M5 7h7M9.5 4.5L12 7l-2.5 2.5M5 2.5H3a1 1 0 00-1 1v7a1 1 0 001 1h2" stroke="#dc2626" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/></svg>
                       {lang === "es" ? "Cerrar sesión" : "Log out"}
