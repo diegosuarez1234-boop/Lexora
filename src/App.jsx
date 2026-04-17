@@ -553,23 +553,14 @@ export default function App() {
     </svg>
   );
 
+  const canUsePdf = isPro || isSignedIn; // PDF only for paid/signed-in users
+
   const renderInput = () => (
-    <div>
-      {showUploadZone && (
-        <div
-          onDragOver={e => { e.preventDefault(); e.currentTarget.style.borderColor="#374151"; e.currentTarget.style.background="#f3f4f6"; }}
-          onDragLeave={e => { e.currentTarget.style.borderColor="#d1d5db"; e.currentTarget.style.background="#fafafa"; }}
-          onDrop={e => { e.preventDefault(); e.currentTarget.style.borderColor="#d1d5db"; e.currentTarget.style.background="#fafafa"; processPdf(e.dataTransfer.files[0]); }}
-          onClick={() => fileRef.current?.click()}
-          style={{ border:"2px dashed #d1d5db", borderRadius:12, padding:"20px 16px", textAlign:"center", cursor:"pointer", background:"#fafafa", marginBottom:10, transition:"all .2s" }}
-        >
-          <div style={{ fontSize:13, color:"#374151" }}>
-            {t.uploadDrag} <span style={{ fontWeight:600, textDecoration:"underline" }}>{t.uploadClick}</span>
-          </div>
-          <div style={{ fontSize:11, color:"#9ca3af", marginTop:5 }}>{t.uploadHint}</div>
-          <input ref={fileRef} type="file" accept="application/pdf" onChange={e => processPdf(e.target.files[0])} style={{ display:"none" }} />
-        </div>
-      )}
+    <div
+      onDragOver={e => { if (!canUsePdf) return; e.preventDefault(); e.currentTarget.querySelector('.drop-hint')?.style && (e.currentTarget.querySelector('.drop-hint').style.display='flex'); }}
+      onDragLeave={e => { e.currentTarget.querySelector('.drop-hint')?.style && (e.currentTarget.querySelector('.drop-hint').style.display='none'); }}
+      onDrop={e => { e.preventDefault(); if (!canUsePdf) return; e.currentTarget.querySelector('.drop-hint')?.style && (e.currentTarget.querySelector('.drop-hint').style.display='none'); processPdf(e.dataTransfer.files[0]); }}
+    >
       {pdfStatus === "reading" && (
         <div style={{ display:"flex", alignItems:"center", gap:8, padding:"9px 14px", background:"#f9f9f8", border:"1px solid #e5e7eb", borderRadius:10, marginBottom:10 }}>
           <div style={{ width:13, height:13, border:"2px solid #e5e7eb", borderTop:"2px solid #374151", borderRadius:"50%", animation:"spin .8s linear infinite" }} />
@@ -585,12 +576,33 @@ export default function App() {
       {pdfStatus === "error" && (
         <div style={{ padding:"8px 14px", background:"#fef2f2", border:"1px solid #fecaca", borderRadius:10, marginBottom:10, fontSize:13, color:"#dc2626" }}>{t.uploadError}</div>
       )}
+      {showUploadZone && canUsePdf && (
+        <div
+          onDragOver={e => { e.preventDefault(); e.currentTarget.style.borderColor="#374151"; e.currentTarget.style.background="#f3f4f6"; }}
+          onDragLeave={e => { e.currentTarget.style.borderColor="#d1d5db"; e.currentTarget.style.background="#fafafa"; }}
+          onDrop={e => { e.preventDefault(); e.currentTarget.style.borderColor="#d1d5db"; e.currentTarget.style.background="#fafafa"; processPdf(e.dataTransfer.files[0]); }}
+          onClick={() => fileRef.current?.click()}
+          style={{ border:"2px dashed #d1d5db", borderRadius:12, padding:"20px 16px", textAlign:"center", cursor:"pointer", background:"#fafafa", marginBottom:10, transition:"all .2s" }}
+        >
+          <div style={{ fontSize:13, color:"#374151" }}>
+            {t.uploadDrag} <span style={{ fontWeight:600, textDecoration:"underline" }}>{t.uploadClick}</span>
+          </div>
+          <div style={{ fontSize:11, color:"#9ca3af", marginTop:5 }}>{t.uploadHint}</div>
+          <input ref={fileRef} type="file" accept="application/pdf" onChange={e => processPdf(e.target.files[0])} style={{ display:"none" }} />
+        </div>
+      )}
       <div
         style={{ display:"flex", gap:8, alignItems:"flex-end", background:"#fff", border:`1.5px solid ${isLocked ? "#fecaca" : "#e5e7eb"}`, borderRadius:16, padding:"10px 10px 10px 14px", transition:"border-color .2s", boxShadow:"0 2px 8px rgba(0,0,0,0.06)" }}
         onFocusCapture={e => { if (!isLocked) e.currentTarget.style.borderColor="#374151"; }}
         onBlurCapture={e => e.currentTarget.style.borderColor=isLocked ? "#fecaca" : "#e5e7eb"}
       >
-        <button onClick={() => setShowUploadZone(v => !v)} title={t.uploadBtn} style={{ width:32, height:32, borderRadius:8, background:showUploadZone ? "#111827" : "transparent", border:"1px solid #e5e7eb", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, transition:"all .15s" }} onMouseOver={e => { if (!showUploadZone) e.currentTarget.style.background="#f3f4f6"; }} onMouseOut={e => { if (!showUploadZone) e.currentTarget.style.background="transparent"; }}>
+        <button
+          onClick={() => canUsePdf ? setShowUploadZone(v => !v) : setShowPaywall(true)}
+          title={canUsePdf ? t.uploadBtn : (lang === "es" ? "Disponible en plan Personal" : "Available in Personal plan")}
+          style={{ width:32, height:32, borderRadius:8, background:showUploadZone ? "#111827" : "transparent", border:"1px solid #e5e7eb", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, transition:"all .15s", opacity: canUsePdf ? 1 : 0.4 }}
+          onMouseOver={e => { if (canUsePdf && !showUploadZone) e.currentTarget.style.background="#f3f4f6"; }}
+          onMouseOut={e => { if (!showUploadZone) e.currentTarget.style.background="transparent"; }}
+        >
           <PaperclipIcon />
         </button>
         <textarea ref={inputRef} value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); isLocked ? setShowPaywall(true) : sendMessage(); }}} placeholder={isLocked ? t.lockedInput : t.placeholder} rows={1} disabled={isLocked || loading} style={{ flex:1, background:"transparent", border:"none", color:isLocked ? "#9ca3af" : "#111827", fontSize:14, resize:"none", outline:"none", fontFamily:"inherit", lineHeight:1.5, maxHeight:120, paddingTop:2, cursor:isLocked ? "not-allowed" : "text" }} onInput={e => { e.target.style.height="auto"; e.target.style.height=Math.min(e.target.scrollHeight, 120) + "px"; }} />
@@ -626,11 +638,12 @@ export default function App() {
             position:fixed!important;
             top:0;left:0;bottom:0;
             z-index:200;
-            width:280px!important;
-            min-width:280px!important;
+            width:82vw!important;
+            min-width:260px!important;
+            max-width:320px!important;
             transform:translateX(-100%);
-            transition:transform .25s ease!important;
-            box-shadow:4px 0 20px rgba(0,0,0,0.15);
+            transition:transform .28s cubic-bezier(.4,0,.2,1)!important;
+            box-shadow:8px 0 32px rgba(0,0,0,0.18);
           }
           .sidebar.open{
             transform:translateX(0)!important;
@@ -639,18 +652,22 @@ export default function App() {
             display:block!important;
           }
           .paywall-inner{
-            max-height:90vh!important;
+            max-height:88vh!important;
             overflow-y:auto!important;
+            -webkit-overflow-scrolling:touch!important;
             border-radius:20px!important;
             padding:24px 16px!important;
           }
+          h1{ font-size:22px!important; }
         }
         .sidebar-overlay{
           display:none;
           position:fixed;
           inset:0;
-          background:rgba(0,0,0,0.4);
+          background:rgba(0,0,0,0.45);
           z-index:199;
+          backdrop-filter:blur(2px);
+          -webkit-backdrop-filter:blur(2px);
         }
       `}</style>
 
@@ -658,21 +675,11 @@ export default function App() {
 
       {showSignInModal && (
         <div style={{ position:"fixed", inset:0, zIndex:1000, background:"rgba(0,0,0,0.5)", display:"flex", alignItems:"center", justifyContent:"center", padding:20 }}>
-          <div style={{ background:"#fff", borderRadius:20, padding:"28px 24px", maxWidth:420, width:"100%", position:"relative" }}>
+          <div style={{ background:"#fff", borderRadius:20, padding:"20px 20px 28px", maxWidth:400, width:"100%", position:"relative" }}>
             <button onClick={() => setShowSignInModal(false)} style={{ position:"absolute", top:14, right:14, width:28, height:28, borderRadius:"50%", background:"#f3f4f6", border:"none", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center" }}>
               <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="2" y1="2" x2="8" y2="8" stroke="#6b7280" strokeWidth="1.5" strokeLinecap="round"/><line x1="8" y1="2" x2="2" y2="8" stroke="#6b7280" strokeWidth="1.5" strokeLinecap="round"/></svg>
             </button>
-            <div style={{ textAlign:"center", marginBottom:20 }}>
-              <div style={{ fontSize:17, fontWeight:700, color:"#111827", marginBottom:6 }}>
-                {lang === "es" ? "Inicia sesión en Lurix" : "Sign in to Lurix"}
-              </div>
-              <div style={{ fontSize:13, color:"#6b7280" }}>
-                {lang === "es" ? "Accede a tu cuenta para continuar." : "Access your account to continue."}
-              </div>
-            </div>
-            <div style={{ display:"flex", justifyContent:"center" }}>
-              <SignIn routing="hash" appearance={{ elements: { rootBox: { width:"100%", maxWidth:380 } } }} />
-            </div>
+            <SignIn routing="hash" />
           </div>
         </div>
       )}
