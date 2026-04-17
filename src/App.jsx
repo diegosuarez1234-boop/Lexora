@@ -213,8 +213,8 @@ const CrossIcon = () => (
 
 function Paywall({ t, onClose }) {
   return (
-    <div style={{ position:"fixed", inset:0, zIndex:1000, background:"rgba(0,0,0,0.5)", display:"flex", alignItems:"center", justifyContent:"center", padding:20 }}>
-      <div style={{ background:"#fff", borderRadius:24, padding:"36px 32px", maxWidth:620, width:"100%", boxShadow:"0 32px 80px rgba(0,0,0,0.18)", animation:"modalIn .25s ease", position:"relative" }}>
+    <div style={{ position:"fixed", inset:0, zIndex:1000, background:"rgba(0,0,0,0.5)", display:"flex", alignItems:"flex-start", justifyContent:"center", padding:20, overflowY:"auto" }}>
+      <div className="paywall-inner" style={{ background:"#fff", borderRadius:24, padding:"36px 32px", maxWidth:620, width:"100%", boxShadow:"0 32px 80px rgba(0,0,0,0.18)", animation:"modalIn .25s ease", position:"relative", margin:"auto" }}>
 
         {/* X close button */}
         <button
@@ -635,13 +635,15 @@ export default function App() {
           .sidebar.open{
             transform:translateX(0)!important;
           }
-          .sidebar-overlay{
+          .sidebar-overlay.visible{
             display:block!important;
           }
-          .paywall-grid{grid-template-columns:1fr!important}
-          .paywall-modal{padding:24px 16px!important;border-radius:20px!important;max-height:90vh;overflow-y:auto}
-          .paywall-overlay{align-items:flex-end!important;padding:0!important}
-          .paywall-modal{border-radius:20px 20px 0 0!important}
+          .paywall-inner{
+            max-height:90vh!important;
+            overflow-y:auto!important;
+            border-radius:20px!important;
+            padding:24px 16px!important;
+          }
         }
         .sidebar-overlay{
           display:none;
@@ -677,9 +679,9 @@ export default function App() {
 
       <div style={{ display:"flex", height:"100vh", background:"#f9f9f8", fontFamily:"'DM Sans',system-ui,sans-serif" }}>
 
-        {/* Mobile overlay */}
+        {/* Mobile overlay - only when sidebar open */}
         <div
-          className="sidebar-overlay"
+          className={`sidebar-overlay${sidebarOpen ? " visible" : ""}`}
           onClick={() => setSidebarOpen(false)}
         />
 
