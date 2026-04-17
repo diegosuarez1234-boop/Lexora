@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import { useUser, SignIn } from "@clerk/react";
 
-const STRIPE_BASIC = "https://buy.stripe.com/test_eVq28rgbY5d7dy12f5c3m01";
-const STRIPE_PRO   = "https://buy.stripe.com/test_8x228r7FsfRLbpTcTJc3m02";
+const STRIPE_BASIC = "https://buy.stripe.com/00w3cveUa26ceWQ3xA3Ru02";
+const STRIPE_PRO   = "https://buy.stripe.com/14A7sL6nEaCI01Wfgi3Ru01";
 const FREE_LIMIT   = 5;
 const STORAGE_KEY  = "lurix_usage";
 const HISTORY_KEY  = "lurix_chats";
