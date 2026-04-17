@@ -328,6 +328,7 @@ export default function App() {
   const { user, isSignedIn } = useUser();
   const [lang, setLang]               = useState("es");
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showSignInModal, setShowSignInModal] = useState(false);
   const [jurIdx, setJurIdx]           = useState(0);
   const [messages, setMessages]       = useState([]);
   const [input, setInput]             = useState("");
@@ -358,6 +359,10 @@ export default function App() {
   const needsSignIn = isLocked && !isSignedIn;
   const needsPlans  = isLocked && isSignedIn && !isPro;
   const hasChatted = messages.filter(m => m.role === "user").length > 0;
+
+  useEffect(() => {
+    if (isSignedIn) setShowSignInModal(false);
+  }, [isSignedIn]);
 
   useEffect(() => {
     setMessages([{ role:"assistant", content:t.welcome, id:"welcome" }]);
@@ -649,6 +654,27 @@ export default function App() {
 
       {showPaywall && <Paywall t={t} onClose={() => { setShowPaywall(false); }} />}
 
+      {showSignInModal && (
+        <div style={{ position:"fixed", inset:0, zIndex:1000, background:"rgba(0,0,0,0.5)", display:"flex", alignItems:"center", justifyContent:"center", padding:20 }}>
+          <div style={{ background:"#fff", borderRadius:20, padding:"28px 24px", maxWidth:420, width:"100%", position:"relative" }}>
+            <button onClick={() => setShowSignInModal(false)} style={{ position:"absolute", top:14, right:14, width:28, height:28, borderRadius:"50%", background:"#f3f4f6", border:"none", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center" }}>
+              <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="2" y1="2" x2="8" y2="8" stroke="#6b7280" strokeWidth="1.5" strokeLinecap="round"/><line x1="8" y1="2" x2="2" y2="8" stroke="#6b7280" strokeWidth="1.5" strokeLinecap="round"/></svg>
+            </button>
+            <div style={{ textAlign:"center", marginBottom:20 }}>
+              <div style={{ fontSize:17, fontWeight:700, color:"#111827", marginBottom:6 }}>
+                {lang === "es" ? "Inicia sesión en Lurix" : "Sign in to Lurix"}
+              </div>
+              <div style={{ fontSize:13, color:"#6b7280" }}>
+                {lang === "es" ? "Accede a tu cuenta para continuar." : "Access your account to continue."}
+              </div>
+            </div>
+            <div style={{ display:"flex", justifyContent:"center" }}>
+              <SignIn routing="hash" appearance={{ elements: { rootBox: { width:"100%", maxWidth:380 } } }} />
+            </div>
+          </div>
+        </div>
+      )}
+
       <div style={{ display:"flex", height:"100vh", background:"#f9f9f8", fontFamily:"'DM Sans',system-ui,sans-serif" }}>
 
         {/* Mobile overlay */}
@@ -727,6 +753,21 @@ export default function App() {
               <GlobeIcon /> {lang === "es" ? "Switch to English" : "Cambiar a Español"}
             </button>
           </div>
+
+          {/* Sign In button when not logged in */}
+          {!isSignedIn && (
+            <div style={{ padding:"8px 12px 14px", borderTop:"1px solid #f3f4f6" }}>
+              <button
+                onClick={() => setShowSignInModal(true)}
+                style={{ width:"100%", display:"flex", alignItems:"center", justifyContent:"center", gap:8, padding:"9px 12px", borderRadius:10, border:"none", background:"#111827", color:"#fff", fontSize:13, fontWeight:600, cursor:"pointer", fontFamily:"inherit", transition:"background .15s" }}
+                onMouseOver={e => e.currentTarget.style.background="#374151"}
+                onMouseOut={e => e.currentTarget.style.background="#111827"}
+              >
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 8a3 3 0 100-6 3 3 0 000 6zM2 12a5 5 0 0110 0" stroke="#fff" strokeWidth="1.3" strokeLinecap="round"/></svg>
+                {lang === "es" ? "Iniciar sesión" : "Sign in"}
+              </button>
+            </div>
+          )}
 
           {/* User profile */}
           {isSignedIn && user && (
