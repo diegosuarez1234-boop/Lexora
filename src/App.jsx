@@ -774,7 +774,7 @@ export default function App() {
           {hasChatted && (
             <>
               <div style={{ flex:1, overflowY:"auto" }}>
-                <div style={{ maxWidth:760, margin:"0 auto", padding:"32px 24px 20px" }}>
+                <div style={{ width:"100%", padding:"32px 40px 20px" }}>
 
                   {/* Chat messages */}
                   {messages.filter(m => m.id !== "welcome").map((m, i) => {
@@ -849,7 +849,7 @@ export default function App() {
 
               {/* Input at bottom when chatting */}
               <div style={{ background:"#f9f9f8", borderTop:"1px solid #e5e7eb", padding:"12px 24px 16px", flexShrink:0 }}>
-                <div style={{ maxWidth:760, margin:"0 auto" }}>
+                <div style={{ width:"100%" }}>
                   {renderInput()}
                 </div>
               </div>
