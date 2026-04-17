@@ -657,7 +657,7 @@ export default function App() {
         />
 
         {/* SIDEBAR */}
-        <div className={`sidebar${sidebarOpen ? " open" : ""}`} style={{ width:sidebarOpen ? "240px" : "0", minWidth:sidebarOpen ? "240px" : "0", overflow:"hidden", background:"#fff", borderRight:"1px solid #e5e7eb", display:"flex", flexDirection:"column", transition:"all .22s ease", flexShrink:0 }}>
+        <div className={`sidebar${sidebarOpen ? " open" : ""}`} style={{ width:sidebarOpen ? "240px" : "0", minWidth:sidebarOpen ? "240px" : "0", overflow:"hidden", background:"#f9f9f8", borderRight:"none", display:"flex", flexDirection:"column", transition:"all .22s ease", flexShrink:0 }}>
 
           {/* Logo */}
           <div style={{ padding:"18px 18px 12px", borderBottom:"1px solid #f3f4f6" }}>
@@ -732,7 +732,7 @@ export default function App() {
         <div style={{ flex:1, display:"flex", flexDirection:"column", minWidth:0, background:"#f9f9f8" }}>
 
           {/* Top bar */}
-          <div style={{ height:50, borderBottom:"1px solid #e5e7eb", background:"#fff", display:"flex", alignItems:"center", padding:"0 18px", gap:10, flexShrink:0 }}>
+          <div style={{ height:50, borderBottom:"none", background:"#f9f9f8", display:"flex", alignItems:"center", padding:"0 18px", gap:10, flexShrink:0 }}>
             <button onClick={() => setSidebarOpen(o => !o)} style={{ background:"transparent", border:"none", cursor:"pointer", padding:"4px 6px", borderRadius:6, lineHeight:1 }}>
               <MenuIcon />
             </button>
@@ -848,7 +848,7 @@ export default function App() {
               </div>
 
               {/* Input at bottom when chatting */}
-              <div style={{ background:"#f9f9f8", borderTop:"1px solid #e5e7eb", padding:"12px 24px 16px", flexShrink:0 }}>
+              <div style={{ background:"#f9f9f8", borderTop:"none", padding:"12px 24px 16px", flexShrink:0 }}>
                 <div style={{ width:"100%" }}>
                   {renderInput()}
                 </div>
