@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import { useUser, SignIn } from "@clerk/react";
 
-const STRIPE_BASIC = "https://buy.stripe.com/TU_LINK_BASICO";
-const STRIPE_PRO   = "https://buy.stripe.com/TU_LINK_PRO";
+const STRIPE_BASIC = "https://buy.stripe.com/test_eVq28rgbY5d7dy12f5c3m01";
+const STRIPE_PRO   = "https://buy.stripe.com/test_8x228r7FsfRLbpTcTJc3m02";
 const FREE_LIMIT   = 5;
 const STORAGE_KEY  = "lurix_usage";
 const HISTORY_KEY  = "lurix_chats";
@@ -327,6 +327,7 @@ function FreeBar({ used, total }) {
 export default function App() {
   const { user, isSignedIn } = useUser();
   const [lang, setLang]               = useState("es");
+  const [showUserMenu, setShowUserMenu] = useState(false);
   const [jurIdx, setJurIdx]           = useState(0);
   const [messages, setMessages]       = useState([]);
   const [input, setInput]             = useState("");
@@ -721,11 +722,75 @@ export default function App() {
           </div>
 
           {/* Language toggle */}
-          <div style={{ padding:"8px 12px 14px", borderTop:"1px solid #f3f4f6" }}>
+          <div style={{ padding:"8px 12px 4px", borderTop:"1px solid #f3f4f6" }}>
             <button onClick={() => setLang(lang === "es" ? "en" : "es")} style={{ width:"100%", display:"flex", alignItems:"center", justifyContent:"center", gap:6, padding:"6px", borderRadius:8, border:"1px solid #e5e7eb", background:"transparent", color:"#6b7280", fontSize:12, cursor:"pointer", fontFamily:"inherit" }}>
               <GlobeIcon /> {lang === "es" ? "Switch to English" : "Cambiar a Español"}
             </button>
           </div>
+
+          {/* User profile */}
+          {isSignedIn && user && (
+            <div style={{ padding:"8px 12px 14px", borderTop:"1px solid #f3f4f6", position:"relative" }}>
+              <button
+                onClick={() => setShowUserMenu(v => !v)}
+                style={{ width:"100%", display:"flex", alignItems:"center", gap:10, padding:"8px 10px", borderRadius:10, border:"none", background:"transparent", cursor:"pointer", fontFamily:"inherit", transition:"background .15s" }}
+                onMouseOver={e => e.currentTarget.style.background="#f3f4f6"}
+                onMouseOut={e => e.currentTarget.style.background="transparent"}
+              >
+                <div style={{ width:32, height:32, borderRadius:"50%", background:"#111827", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, fontSize:12, fontWeight:700, color:"#fff" }}>
+                  {user.firstName ? user.firstName[0].toUpperCase() : user.emailAddresses?.[0]?.emailAddress?.[0]?.toUpperCase() || "U"}
+                </div>
+                <div style={{ flex:1, textAlign:"left", overflow:"hidden" }}>
+                  <div style={{ fontSize:12, fontWeight:600, color:"#111827", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>
+                    {user.firstName ? `${user.firstName} ${user.lastName || ""}`.trim() : user.emailAddresses?.[0]?.emailAddress}
+                  </div>
+                  <div style={{ fontSize:10, color: isPro ? "#16a34a" : "#9ca3af" }}>
+                    {isPro ? (lang === "es" ? "Plan Pro" : "Pro plan") : (lang === "es" ? "Plan gratuito" : "Free plan")}
+                  </div>
+                </div>
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 5l4 4 4-4" stroke="#9ca3af" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              </button>
+
+              {showUserMenu && (
+                <div style={{ position:"absolute", bottom:"100%", left:12, right:12, background:"#fff", border:"1px solid #e5e7eb", borderRadius:12, padding:"6px", boxShadow:"0 -4px 20px rgba(0,0,0,0.08)", zIndex:100 }}>
+                  <div style={{ padding:"8px 10px", fontSize:11, color:"#9ca3af", borderBottom:"1px solid #f3f4f6", marginBottom:4 }}>
+                    {user.emailAddresses?.[0]?.emailAddress}
+                  </div>
+                  <button onClick={() => { setShowPaywall(true); setShowUserMenu(false); }} style={{ width:"100%", display:"flex", alignItems:"center", gap:8, padding:"8px 10px", borderRadius:8, border:"none", background:"transparent", cursor:"pointer", fontFamily:"inherit", fontSize:13, color:"#374151", textAlign:"left" }}
+                    onMouseOver={e => e.currentTarget.style.background="#f3f4f6"}
+                    onMouseOut={e => e.currentTarget.style.background="transparent"}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1.5" y="1.5" width="11" height="11" rx="2.5" stroke="#6b7280" strokeWidth="1.3"/><path d="M4.5 7h5M7 4.5v5" stroke="#6b7280" strokeWidth="1.3" strokeLinecap="round"/></svg>
+                    {lang === "es" ? "Ver planes" : "View plans"}
+                  </button>
+                  <button onClick={() => { setLang(lang === "es" ? "en" : "es"); setShowUserMenu(false); }} style={{ width:"100%", display:"flex", alignItems:"center", gap:8, padding:"8px 10px", borderRadius:8, border:"none", background:"transparent", cursor:"pointer", fontFamily:"inherit", fontSize:13, color:"#374151", textAlign:"left" }}
+                    onMouseOver={e => e.currentTarget.style.background="#f3f4f6"}
+                    onMouseOut={e => e.currentTarget.style.background="transparent"}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="#6b7280" strokeWidth="1.3"/><path d="M7 1.5C7 1.5 5 4 5 7s2 5.5 2 5.5M7 1.5C7 1.5 9 4 9 7s-2 5.5-2 5.5M1.5 7h11" stroke="#6b7280" strokeWidth="1.3"/></svg>
+                    {lang === "es" ? "Switch to English" : "Cambiar a Español"}
+                  </button>
+                  <a href="mailto:hola@trylurix.com" style={{ width:"100%", display:"flex", alignItems:"center", gap:8, padding:"8px 10px", borderRadius:8, border:"none", background:"transparent", cursor:"pointer", fontFamily:"inherit", fontSize:13, color:"#374151", textDecoration:"none" }}
+                    onMouseOver={e => e.currentTarget.style.background="#f3f4f6"}
+                    onMouseOut={e => e.currentTarget.style.background="transparent"}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1.5" y="3" width="11" height="8" rx="1.5" stroke="#6b7280" strokeWidth="1.3"/><path d="M1.5 4.5l5.5 3.5 5.5-3.5" stroke="#6b7280" strokeWidth="1.3" strokeLinecap="round"/></svg>
+                    Support
+                  </a>
+                  <div style={{ borderTop:"1px solid #f3f4f6", marginTop:4, paddingTop:4 }}>
+                    <button onClick={() => { window.location.href = "/sign-out"; }} style={{ width:"100%", display:"flex", alignItems:"center", gap:8, padding:"8px 10px", borderRadius:8, border:"none", background:"transparent", cursor:"pointer", fontFamily:"inherit", fontSize:13, color:"#dc2626", textAlign:"left" }}
+                      onMouseOver={e => e.currentTarget.style.background="#fef2f2"}
+                      onMouseOut={e => e.currentTarget.style.background="transparent"}
+                      onClick={() => { window.Clerk?.signOut().then(() => window.location.reload()); setShowUserMenu(false); }}
+                    >
+                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M5 7h7M9.5 4.5L12 7l-2.5 2.5M5 2.5H3a1 1 0 00-1 1v7a1 1 0 001 1h2" stroke="#dc2626" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                      {lang === "es" ? "Cerrar sesión" : "Log out"}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* MAIN */}
