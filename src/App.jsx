@@ -675,11 +675,19 @@ export default function App() {
 
       {showSignInModal && (
         <div style={{ position:"fixed", inset:0, zIndex:1000, background:"rgba(0,0,0,0.5)", display:"flex", alignItems:"center", justifyContent:"center", padding:20 }}>
-          <div style={{ background:"#fff", borderRadius:20, padding:"20px 20px 28px", maxWidth:400, width:"100%", position:"relative" }}>
-            <button onClick={() => setShowSignInModal(false)} style={{ position:"absolute", top:14, right:14, width:28, height:28, borderRadius:"50%", background:"#f3f4f6", border:"none", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center" }}>
-              <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><line x1="2" y1="2" x2="8" y2="8" stroke="#6b7280" strokeWidth="1.5" strokeLinecap="round"/><line x1="8" y1="2" x2="2" y2="8" stroke="#6b7280" strokeWidth="1.5" strokeLinecap="round"/></svg>
-            </button>
-            <SignIn routing="hash" />
+          <div style={{ background:"#fff", borderRadius:20, padding:"0 0 28px", maxWidth:400, width:"100%", position:"relative", overflow:"hidden" }}>
+            {/* Back arrow header */}
+            <div style={{ display:"flex", alignItems:"center", padding:"14px 16px 0", borderBottom:"1px solid #f3f4f6", marginBottom:4 }}>
+              <button onClick={() => setShowSignInModal(false)} style={{ display:"flex", alignItems:"center", gap:6, background:"transparent", border:"none", cursor:"pointer", color:"#374151", fontSize:13, fontWeight:500, fontFamily:"inherit", padding:"6px 0" }}>
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                  <path d="M11 4L6 9l5 5" stroke="#374151" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                {lang === "es" ? "Volver" : "Back"}
+              </button>
+            </div>
+            <div style={{ padding:"0 20px" }}>
+              <SignIn routing="hash" />
+            </div>
           </div>
         </div>
       )}
@@ -914,18 +922,28 @@ export default function App() {
                   })}
 
                   {needsSignIn && (
-                    <div className="mi" style={{ textAlign:"center", padding:"32px 24px", background:"#fff", borderRadius:16, border:"1px solid #e5e7eb", marginBottom:20 }}>
-                      <div style={{ width:48, height:48, background:"#f3f4f6", borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 16px" }}>
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 12a5 5 0 100-10 5 5 0 000 10zM20 21a8 8 0 10-16 0" stroke="#6b7280" strokeWidth="1.5" strokeLinecap="round"/></svg>
+                    <div className="mi" style={{ background:"#fff", borderRadius:16, border:"1px solid #e5e7eb", marginBottom:20, overflow:"hidden" }}>
+                      <div style={{ display:"flex", alignItems:"center", padding:"12px 16px", borderBottom:"1px solid #f3f4f6" }}>
+                        <button onClick={startNewChat} style={{ display:"flex", alignItems:"center", gap:6, background:"transparent", border:"none", cursor:"pointer", color:"#374151", fontSize:13, fontWeight:500, fontFamily:"inherit", padding:"4px 0" }}>
+                          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                            <path d="M11 4L6 9l5 5" stroke="#374151" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                          {lang === "es" ? "Volver" : "Back"}
+                        </button>
                       </div>
-                      <div style={{ fontSize:17, fontWeight:700, color:"#111827", marginBottom:6 }}>
-                        {lang === "es" ? "Crea tu cuenta gratis" : "Create your free account"}
-                      </div>
-                      <div style={{ fontSize:13, color:"#6b7280", marginBottom:24, lineHeight:1.6 }}>
-                        {lang === "es" ? "Has usado tus 5 consultas gratis. Crea una cuenta para continuar." : "You've used your 5 free consultations. Sign up to continue."}
-                      </div>
-                      <div style={{ display:"flex", justifyContent:"center" }}>
-                        <SignIn routing="hash" appearance={{ elements: { rootBox: { width:"100%", maxWidth:400 } } }} />
+                      <div style={{ padding:"24px", textAlign:"center" }}>
+                        <div style={{ width:48, height:48, background:"#f3f4f6", borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 16px" }}>
+                          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 12a5 5 0 100-10 5 5 0 000 10zM20 21a8 8 0 10-16 0" stroke="#6b7280" strokeWidth="1.5" strokeLinecap="round"/></svg>
+                        </div>
+                        <div style={{ fontSize:17, fontWeight:700, color:"#111827", marginBottom:6 }}>
+                          {lang === "es" ? "Crea tu cuenta gratis" : "Create your free account"}
+                        </div>
+                        <div style={{ fontSize:13, color:"#6b7280", marginBottom:24, lineHeight:1.6 }}>
+                          {lang === "es" ? "Has usado tus 5 consultas gratis. Crea una cuenta para continuar." : "You've used your 5 free consultations. Sign up to continue."}
+                        </div>
+                        <div style={{ display:"flex", justifyContent:"center" }}>
+                          <SignIn routing="hash" appearance={{ elements: { rootBox: { width:"100%", maxWidth:400 } } }} />
+                        </div>
                       </div>
                     </div>
                   )}
