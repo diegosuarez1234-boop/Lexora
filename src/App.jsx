@@ -335,7 +335,7 @@ export default function App() {
   const [loading, setLoading]         = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [showPaywall, setShowPaywall] = useState(false);
-  const [isPro, setIsPro]             = useState(false);
+  const isPro = user?.publicMetadata?.isPro === true;
   const [usageCount, setUsageCount]   = useState(() => {
     try { return parseInt(localStorage.getItem(STORAGE_KEY) || "0", 10); } catch { return 0; }
   });
